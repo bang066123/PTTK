@@ -1,25 +1,20 @@
 package model;
 
-/**
- * Lớp thực thể nhân viên (kế thừa Account6)
- */
+import java.util.Date;
+
 public class Employee6 extends Account6 {
-    private String fullName;
-    private String phone;
+    private Date startDate;
 
-    public Employee6() { super(); }
-
-    public Employee6(int id, String username, String password, String email,
-                     String phoneNumber, String role, String fullName, String phone) {
-        super(id, username, password, email, phoneNumber, role);
-        this.fullName = fullName;
-        this.phone = phone;
+    public Employee6() {
+        super();
     }
 
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+    public Employee6(int id, String username, String password, String name, String email,
+                     String phoneNumber, Address6 address, Date startDate) {
+        super(id, username, password, name, email, phoneNumber, address);
+        this.startDate = startDate;
+    }
 
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
+    public Date getStartDate() { return startDate; }
+    public void setStartDate(Date startDate) { this.startDate = startDate; }
 }
-

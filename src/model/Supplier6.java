@@ -1,8 +1,5 @@
 package model;
 
-/**
- * Lớp thực thể nhà cung cấp
- */
 public class Supplier6 {
     private int id;
     private String supplierName;
@@ -28,10 +25,6 @@ public class Supplier6 {
     public String getSupplierName() { return supplierName; }
     public void setSupplierName(String supplierName) { this.supplierName = supplierName; }
 
-    // Alias
-    public String getName() { return supplierName; }
-    public void setName(String name) { this.supplierName = name; }
-
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
 
@@ -44,4 +37,3 @@ public class Supplier6 {
     public Address6 getAddress() { return address; }
     public void setAddress(Address6 address) { this.address = address; }
 }
-

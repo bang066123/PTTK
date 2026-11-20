@@ -1,14 +1,14 @@
 package model;
 
-/**
- * Lớp thực thể nhân viên kho (kế thừa Employee6)
- */
-public class WarehouseStaff6 extends Employee6 {
-    public WarehouseStaff6() { super(); }
+import java.util.Date;
 
-    public WarehouseStaff6(int id, String username, String password, String email,
-                           String phoneNumber, String fullName, String phone) {
-        super(id, username, password, email, phoneNumber, "warehousestaff", fullName, phone);
+public class WarehouseStaff6 extends Employee6 {
+    public WarehouseStaff6() {
+        super();
+    }
+
+    public WarehouseStaff6(int id, String username, String password, String name, String email,
+                          String phoneNumber, Address6 address, Date startDate) {
+        super(id, username, password, name, email, phoneNumber, address, startDate);
     }
 }
-

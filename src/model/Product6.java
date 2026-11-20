@@ -1,8 +1,5 @@
 package model;
 
-/**
- * Lớp thực thể mặt hàng điện máy
- */
 public class Product6 {
     private int id;
     private String name;
@@ -35,4 +32,3 @@ public class Product6 {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 }
-

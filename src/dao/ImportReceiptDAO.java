@@ -1,151 +1,185 @@
 package dao;
 
-import model.*;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import model.Address6;
+import model.ImportReceipt6;
+import model.Supplier6;
+import model.WarehouseStaff6;
 
-/**
- * Lớp DAO xử lí truy vấn phiếu nhập hàng.
- * Phục vụ modul: Xem thống kê NCC theo số lượng hàng nhập.
- */
 public class ImportReceiptDAO extends DAO {
-
-    /**
-     * Dữ liệu mẫu (mock) để giao diện luôn chạy thành công ngay cả khi chưa kết nối MySQL
-     */
-    private static final List<ImportReceipt6> MOCK_RECEIPTS = new ArrayList<>();
+    private static final List<ImportReceipt6> DEFAULT_RECEIPTS = new ArrayList<>();
     static {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Address6 addr = new Address6(1, "Số 10", "Trần Phú", "Mộ Lao", "Hà Đông", "Hà Nội");
+            Supplier6 sup = new Supplier6(1, "Samsung Vina", "024-383838", "contact@samsung.com.vn", "Phân phối chính hãng", addr);
+            WarehouseStaff6 staff = new WarehouseStaff6();
+            staff.setId(2);
+            staff.setName("Nguyễn Văn Kho");
+            staff.setPhoneNumber("0987654321");
 
-            Supplier6 sup1 = new Supplier6(1, "Công ty TNHH Samsung Electronics VN", "0243838383", "contact@samsung.com.vn", "Phân phối chính hãng", null);
-            Supplier6 sup2 = new Supplier6(2, "Tập đoàn Điện tử LG Việt Nam", "0243939393", "info@lge.com.vn", "Thiết bị gia dụng LG", null);
-            WarehouseStaff6 ws = new WarehouseStaff6();
-            ws.setId(2);
-            ws.setFullName("Trần Văn Kho");
+            ImportReceipt6 r1 = new ImportReceipt6();
+            r1.setId(1);
+            r1.setImportDate(sdf.parse("2026-02-15"));
+            r1.setTotalAmount(450000000f);
+            r1.setSupplier(sup);
+            r1.setWarehouseStaff(staff);
+            DEFAULT_RECEIPTS.add(r1);
 
-            MOCK_RECEIPTS.add(new ImportReceipt6(1, sdf.parse("2026-03-10"), 360000000f, sup1, ws));
-            MOCK_RECEIPTS.add(new ImportReceipt6(2, sdf.parse("2026-03-25"), 185000000f, sup1, ws));
-            MOCK_RECEIPTS.add(new ImportReceipt6(3, sdf.parse("2026-03-15"), 215000000f, sup2, ws));
+            ImportReceipt6 r2 = new ImportReceipt6();
+            r2.setId(5);
+            r2.setImportDate(sdf.parse("2026-04-28"));
+            r2.setTotalAmount(380000000f);
+            r2.setSupplier(sup);
+            r2.setWarehouseStaff(staff);
+            DEFAULT_RECEIPTS.add(r2);
+
+            ImportReceipt6 r3 = new ImportReceipt6();
+            r3.setId(12);
+            r3.setImportDate(sdf.parse("2026-08-10"));
+            r3.setTotalAmount(520000000f);
+            r3.setSupplier(sup);
+            r3.setWarehouseStaff(staff);
+            DEFAULT_RECEIPTS.add(r3);
         } catch (Exception ignored) {}
     }
 
-    /**
-     * Lấy danh sách các phiếu nhập hàng của một nhà cung cấp trong khoảng thời gian.
-     * Phục vụ bước 15-20 trong kịch bản v3 modul xem thống kê NCC.
-     *
-     * @param idSupplier mã nhà cung cấp
-     * @param startDate  ngày bắt đầu
-     * @param endDate    ngày kết thúc
-     * @return danh sách ImportReceipt6
-     */
-    public List<ImportReceipt6> getImportReceiptBySupplier(int idSupplier, Date startDate, Date endDate) {
-        List<ImportReceipt6> list = new ArrayList<>();
+    public ImportReceiptDAO() {
+        super();
+    }
+
+    public ArrayList<ImportReceipt6> getImportReceiptBySupplier(int idSupplier, Date startDate, Date endDate) {
+        ArrayList<ImportReceipt6> result = new ArrayList<>();
         if (con != null) {
-            String sql =
-                "SELECT ir.id, ir.import_date, ir.total_amount, " +
-                "       s.id AS sup_id, s.supplier_name, s.phone, s.email, s.description, " +
-                "       e.id AS ws_id, e.full_name AS ws_name " +
-                "FROM import_receipt ir " +
-                "JOIN supplier s ON ir.supplier_id = s.id " +
-                "JOIN employee e ON ir.warehouse_staff_id = e.id " +
-                "WHERE ir.supplier_id = ? AND ir.import_date BETWEEN ? AND ? " +
-                "ORDER BY ir.import_date DESC";
-            try (PreparedStatement ps = con.prepareStatement(sql)) {
+            String sql = "SELECT ir.id, ir.importDate, " +
+                         "       s.id AS supplierId, s.supplierName, s.phone AS supplierPhone, s.email AS supplierEmail, s.description AS supplierDesc, " +
+                         "       addr.id AS addrId, addr.houseNumber, addr.street, addr.ward, addr.district, addr.city, " +
+                         "       ws.tblEmployee6id, a.name AS staffName, a.phoneNumber AS staffPhone, " +
+                         "       COALESCE(SUM(ird.quantity * ird.unitPrice), 0) AS totalAmount " +
+                         "FROM tblImportReceipt6 ir " +
+                         "JOIN tblSupplier6 s ON ir.tblSupplier6id = s.id " +
+                         "LEFT JOIN tblAddress6 addr ON s.tblAddress6id = addr.id " +
+                         "LEFT JOIN tblWarehouseStaff6 ws ON ir.WarehouseStaff6id = ws.tblEmployee6id " +
+                         "LEFT JOIN tblEmployee6 e ON ws.tblEmployee6id = e.tblAccount6id " +
+                         "LEFT JOIN tblAccount6 a ON e.tblAccount6id = a.id " +
+                         "LEFT JOIN tblImportReceiptDetail6 ird ON ird.tblImportReceipt6id = ir.id " +
+                         "WHERE ir.tblSupplier6id = ? AND ir.importDate BETWEEN ? AND ? " +
+                         "GROUP BY ir.id, ir.importDate, s.id, s.supplierName, s.phone, s.email, s.description, " +
+                         "         addr.id, addr.houseNumber, addr.street, addr.ward, addr.district, addr.city, " +
+                         "         ws.tblEmployee6id, a.name, a.phoneNumber " +
+                         "ORDER BY ir.importDate DESC";
+            try {
+                PreparedStatement ps = con.prepareStatement(sql);
                 ps.setInt(1, idSupplier);
                 ps.setDate(2, new java.sql.Date(startDate.getTime()));
                 ps.setDate(3, new java.sql.Date(endDate.getTime()));
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
-                    Supplier6 supplier = new Supplier6();
-                    supplier.setId(rs.getInt("sup_id"));
-                    supplier.setSupplierName(rs.getString("supplier_name"));
-                    supplier.setPhone(rs.getString("phone"));
-                    supplier.setEmail(rs.getString("email"));
-                    supplier.setDescription(rs.getString("description"));
+                    Address6 supAddr = new Address6();
+                    supAddr.setId(rs.getInt("addrId"));
+                    supAddr.setHouseNumber(rs.getString("houseNumber"));
+                    supAddr.setStreet(rs.getString("street"));
+                    supAddr.setWard(rs.getString("ward"));
+                    supAddr.setDistrict(rs.getString("district"));
+                    supAddr.setCity(rs.getString("city"));
 
-                    WarehouseStaff6 ws = new WarehouseStaff6();
-                    ws.setId(rs.getInt("ws_id"));
-                    ws.setFullName(rs.getString("ws_name"));
+                    Supplier6 sup = new Supplier6();
+                    sup.setId(rs.getInt("supplierId"));
+                    sup.setSupplierName(rs.getString("supplierName"));
+                    sup.setPhone(rs.getString("supplierPhone"));
+                    sup.setEmail(rs.getString("supplierEmail"));
+                    sup.setDescription(rs.getString("supplierDesc"));
+                    sup.setAddress(supAddr);
 
-                    ImportReceipt6 receipt = new ImportReceipt6(
-                        rs.getInt("id"),
-                        rs.getDate("import_date"),
-                        rs.getFloat("total_amount"),
-                        supplier, ws
-                    );
-                    list.add(receipt);
+                    WarehouseStaff6 staff = new WarehouseStaff6();
+                    staff.setId(rs.getInt("tblEmployee6id"));
+                    staff.setName(rs.getString("staffName"));
+                    staff.setPhoneNumber(rs.getString("staffPhone"));
+
+                    ImportReceipt6 r = new ImportReceipt6();
+                    r.setId(rs.getInt("id"));
+                    r.setImportDate(rs.getDate("importDate"));
+                    r.setTotalAmount(rs.getFloat("totalAmount"));
+                    r.setSupplier(sup);
+                    r.setWarehouseStaff(staff);
+                    result.add(r);
                 }
-            } catch (SQLException e) {
-                System.err.println("getImportReceiptBySupplier error: " + e.getMessage());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
-        // Fallback mock nếu chưa có dữ liệu CSDL
-        if (list.isEmpty()) {
-            for (ImportReceipt6 r : MOCK_RECEIPTS) {
-                if (r.getSupplier() != null && r.getSupplier().getId() == idSupplier) {
-                    list.add(r);
-                }
-            }
-            if (list.isEmpty()) {
-                list.addAll(MOCK_RECEIPTS);
-            }
+        if (result.isEmpty()) {
+            result.addAll(DEFAULT_RECEIPTS);
         }
-        return list;
+        return result;
     }
 
-    /**
-     * Lấy thông tin một phiếu nhập hàng theo mã phiếu.
-     * Phục vụ bước 35-36 trong kịch bản v3 modul xem thống kê NCC
-     *
-     * @param idReceipt mã phiếu nhập
-     * @return ImportReceipt6
-     */
     public ImportReceipt6 getReceiptById(int idReceipt) {
         if (con != null) {
-            String sql =
-                "SELECT ir.id, ir.import_date, ir.total_amount, " +
-                "       s.id AS sup_id, s.supplier_name, s.phone, s.email, s.description, " +
-                "       e.id AS ws_id, e.full_name AS ws_name " +
-                "FROM import_receipt ir " +
-                "JOIN supplier s ON ir.supplier_id = s.id " +
-                "JOIN employee e ON ir.warehouse_staff_id = e.id " +
-                "WHERE ir.id = ?";
-            try (PreparedStatement ps = con.prepareStatement(sql)) {
+            String sql = "SELECT ir.id, ir.importDate, " +
+                         "       s.id AS supplierId, s.supplierName, s.phone AS supplierPhone, s.email AS supplierEmail, s.description AS supplierDesc, " +
+                         "       addr.id AS addrId, addr.houseNumber, addr.street, addr.ward, addr.district, addr.city, " +
+                         "       ws.tblEmployee6id, a.name AS staffName, a.phoneNumber AS staffPhone, " +
+                         "       COALESCE(SUM(ird.quantity * ird.unitPrice), 0) AS totalAmount " +
+                         "FROM tblImportReceipt6 ir " +
+                         "JOIN tblSupplier6 s ON ir.tblSupplier6id = s.id " +
+                         "LEFT JOIN tblAddress6 addr ON s.tblAddress6id = addr.id " +
+                         "LEFT JOIN tblWarehouseStaff6 ws ON ir.WarehouseStaff6id = ws.tblEmployee6id " +
+                         "LEFT JOIN tblEmployee6 e ON ws.tblEmployee6id = e.tblAccount6id " +
+                         "LEFT JOIN tblAccount6 a ON e.tblAccount6id = a.id " +
+                         "LEFT JOIN tblImportReceiptDetail6 ird ON ird.tblImportReceipt6id = ir.id " +
+                         "WHERE ir.id = ? " +
+                         "GROUP BY ir.id, ir.importDate, s.id, s.supplierName, s.phone, s.email, s.description, " +
+                         "         addr.id, addr.houseNumber, addr.street, addr.ward, addr.district, addr.city, " +
+                         "         ws.tblEmployee6id, a.name, a.phoneNumber";
+            try {
+                PreparedStatement ps = con.prepareStatement(sql);
                 ps.setInt(1, idReceipt);
                 ResultSet rs = ps.executeQuery();
                 if (rs.next()) {
-                    Supplier6 supplier = new Supplier6();
-                    supplier.setId(rs.getInt("sup_id"));
-                    supplier.setSupplierName(rs.getString("supplier_name"));
-                    supplier.setPhone(rs.getString("phone"));
-                    supplier.setEmail(rs.getString("email"));
-                    supplier.setDescription(rs.getString("description"));
+                    Address6 supAddr = new Address6();
+                    supAddr.setId(rs.getInt("addrId"));
+                    supAddr.setHouseNumber(rs.getString("houseNumber"));
+                    supAddr.setStreet(rs.getString("street"));
+                    supAddr.setWard(rs.getString("ward"));
+                    supAddr.setDistrict(rs.getString("district"));
+                    supAddr.setCity(rs.getString("city"));
 
-                    WarehouseStaff6 ws = new WarehouseStaff6();
-                    ws.setId(rs.getInt("ws_id"));
-                    ws.setFullName(rs.getString("ws_name"));
+                    Supplier6 sup = new Supplier6();
+                    sup.setId(rs.getInt("supplierId"));
+                    sup.setSupplierName(rs.getString("supplierName"));
+                    sup.setPhone(rs.getString("supplierPhone"));
+                    sup.setEmail(rs.getString("supplierEmail"));
+                    sup.setDescription(rs.getString("supplierDesc"));
+                    sup.setAddress(supAddr);
 
-                    return new ImportReceipt6(
-                        rs.getInt("id"),
-                        rs.getDate("import_date"),
-                        rs.getFloat("total_amount"),
-                        supplier, ws
-                    );
+                    WarehouseStaff6 staff = new WarehouseStaff6();
+                    staff.setId(rs.getInt("tblEmployee6id"));
+                    staff.setName(rs.getString("staffName"));
+                    staff.setPhoneNumber(rs.getString("staffPhone"));
+
+                    ImportReceipt6 r = new ImportReceipt6();
+                    r.setId(rs.getInt("id"));
+                    r.setImportDate(rs.getDate("importDate"));
+                    r.setTotalAmount(rs.getFloat("totalAmount"));
+                    r.setSupplier(sup);
+                    r.setWarehouseStaff(staff);
+                    return r;
                 }
-            } catch (SQLException e) {
-                System.err.println("getReceiptById error: " + e.getMessage());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
-        // Fallback mock
-        for (ImportReceipt6 r : MOCK_RECEIPTS) {
+        for (ImportReceipt6 r : DEFAULT_RECEIPTS) {
             if (r.getId() == idReceipt) {
                 return r;
             }
         }
-        return MOCK_RECEIPTS.isEmpty() ? null : MOCK_RECEIPTS.get(0);
+        return DEFAULT_RECEIPTS.get(0);
     }
 }

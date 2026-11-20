@@ -1,8 +1,5 @@
 package model;
 
-/**
- * Lớp thực thể địa chỉ
- */
 public class Address6 {
     private int id;
     private String houseNumber;
@@ -40,9 +37,16 @@ public class Address6 {
     public String getCity() { return city; }
     public void setCity(String city) { this.city = city; }
 
-    /** Trả về địa chỉ đầy đủ dạng chuỗi */
     public String getFullAddress() {
-        return houseNumber + " " + street + ", " + ward + ", " + district + ", " + city;
+        return (houseNumber != null && !houseNumber.isEmpty() ? houseNumber + ", " : "") +
+               (street != null && !street.isEmpty() ? street + ", " : "") +
+               (ward != null && !ward.isEmpty() ? ward + ", " : "") +
+               (district != null && !district.isEmpty() ? district + ", " : "") +
+               (city != null ? city : "");
+    }
+
+    @Override
+    public String toString() {
+        return getFullAddress();
     }
 }
-

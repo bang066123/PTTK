@@ -1,11 +1,9 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Lớp thực thể phiếu nhập hàng
- */
 public class ImportReceipt6 {
     private int id;
     private Date importDate;
@@ -14,15 +12,27 @@ public class ImportReceipt6 {
     private WarehouseStaff6 warehouseStaff;
     private List<ImportReceiptDetail6> listReceiptDetail;
 
-    public ImportReceipt6() {}
+    public ImportReceipt6() {
+        this.listReceiptDetail = new ArrayList<>();
+    }
 
-    public ImportReceipt6(int id, Date importDate, float totalAmount,
-                          Supplier6 supplier, WarehouseStaff6 warehouseStaff) {
+    public ImportReceipt6(int id, Date importDate, float totalAmount, Supplier6 supplier, WarehouseStaff6 warehouseStaff) {
         this.id = id;
         this.importDate = importDate;
         this.totalAmount = totalAmount;
         this.supplier = supplier;
         this.warehouseStaff = warehouseStaff;
+        this.listReceiptDetail = new ArrayList<>();
+    }
+
+    public ImportReceipt6(int id, Date importDate, float totalAmount, Supplier6 supplier,
+                          WarehouseStaff6 warehouseStaff, List<ImportReceiptDetail6> listReceiptDetail) {
+        this.id = id;
+        this.importDate = importDate;
+        this.totalAmount = totalAmount;
+        this.supplier = supplier;
+        this.warehouseStaff = warehouseStaff;
+        this.listReceiptDetail = listReceiptDetail != null ? listReceiptDetail : new ArrayList<>();
     }
 
     public int getId() { return id; }
@@ -41,6 +51,7 @@ public class ImportReceipt6 {
     public void setWarehouseStaff(WarehouseStaff6 warehouseStaff) { this.warehouseStaff = warehouseStaff; }
 
     public List<ImportReceiptDetail6> getListReceiptDetail() { return listReceiptDetail; }
-    public void setListReceiptDetail(List<ImportReceiptDetail6> listReceiptDetail) { this.listReceiptDetail = listReceiptDetail; }
+    public void setListReceiptDetail(List<ImportReceiptDetail6> listReceiptDetail) {
+        this.listReceiptDetail = listReceiptDetail;
+    }
 }
-
