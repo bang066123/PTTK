@@ -3,7 +3,7 @@ USE qlst_dien_may;
 
 DROP TABLE IF EXISTS tblTransactionDetail6;
 DROP TABLE IF EXISTS tblSaleOrder6;
-DROP TABLE IF EXISTS tblOnlineOrder;
+DROP TABLE IF EXISTS tblOnlineOrder6;
 DROP TABLE IF EXISTS tblTransaction6;
 DROP TABLE IF EXISTS tblImportReceiptDetail6;
 DROP TABLE IF EXISTS tblImportReceipt6;
@@ -117,7 +117,7 @@ CREATE TABLE tblTransaction6 (
     createdDate DATE NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE tblOnlineOrder (
+CREATE TABLE tblOnlineOrder6 (
     tblTransaction6id INT PRIMARY KEY,
     status VARCHAR(255) NOT NULL DEFAULT 'CHO_DUYET',
     tblCustomer6id INT NOT NULL,
@@ -216,7 +216,7 @@ INSERT INTO tblSaleOrder6 (tblTransaction6id, tblCustomer6id, SaleStaff6id) VALU
 INSERT INTO tblTransactionDetail6 (id, quantity, unitPrice, tblProduct6id, tblTransaction6id) VALUES
 (1, 1, 12500000, 1, 1);
 
-INSERT INTO tblOnlineOrder (tblTransaction6id, status, tblCustomer6id, tblDeliveryStaff6id, tblAddress6id, WarehouseStaff6id) VALUES
+INSERT INTO tblOnlineOrder6 (tblTransaction6id, status, tblCustomer6id, tblDeliveryStaff6id, tblAddress6id, WarehouseStaff6id) VALUES
 (2, 'DA_DUYET', 4, 1, 5, 2);
 INSERT INTO tblTransactionDetail6 (id, quantity, unitPrice, tblProduct6id, tblTransaction6id) VALUES
 (2, 1, 6290000, 3, 2);
