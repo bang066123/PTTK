@@ -2,6 +2,7 @@
 <%@ page import="java.util.List, java.util.ArrayList" %>
 <%@ page import="dao.ProductDAO, model.Product6" %>
 <%
+    request.setCharacterEncoding("UTF-8");
     String keyword = request.getParameter("txtKeyword");
     List<Product6> listProduct = new ArrayList<>();
     boolean searched = false;

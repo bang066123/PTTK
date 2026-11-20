@@ -3,6 +3,7 @@
 <%@ page import="model.Manager6, model.ImportReceipt6, model.ImportReceiptDetail6" %>
 <%@ page import="dao.ImportReceiptDAO, dao.ImportReceiptDetailDAO" %>
 <%
+    request.setCharacterEncoding("UTF-8");
     Manager6 manager = (Manager6) session.getAttribute("manager");
     if (manager == null) {
         response.sendRedirect("../thanhvien/LoginFrm.jsp");

@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="dao.ProductDAO, model.Product6" %>
 <%
+    request.setCharacterEncoding("UTF-8");
     String idParam = request.getParameter("id");
     String keyword = request.getParameter("keyword");
     Product6 product = null;

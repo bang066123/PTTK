@@ -2,6 +2,7 @@
 <%@ page import="model.Manager6, model.Customer6, model.Account6" %>
 <%@ page import="dao.DAO, java.sql.Connection, java.sql.PreparedStatement, java.sql.ResultSet" %>
 <%
+    request.setCharacterEncoding("UTF-8");
     String action = request.getParameter("action");
     if ("logout".equals(action)) {
         session.invalidate();

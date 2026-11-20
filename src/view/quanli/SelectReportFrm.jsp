@@ -13,16 +13,22 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Chọn thống kê</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
         body { background: #f0f4ff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .window-box { background: white; border: 2px solid #333; border-radius: 6px; width: 680px; padding: 35px 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .window-box { background: white; border: 2px solid #333; border-radius: 6px; width: 820px; max-width: calc(100% - 32px); margin: 24px 0; padding: 35px 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
         h2 { font-size: 20px; color: #111; margin-bottom: 25px; text-align: center; font-weight: bold; }
-        .form-row { display: flex; align-items: center; gap: 12px; margin-bottom: 25px; flex-wrap: wrap; }
+        .form-row { display: grid; grid-template-columns: auto minmax(220px, 1fr) auto 150px auto 150px; align-items: center; gap: 12px; margin-bottom: 25px; }
         .form-row label { font-size: 14px; font-weight: bold; color: #333; white-space: nowrap; }
-        .form-row select { flex: 2; min-width: 220px; padding: 8px 10px; border: 1px solid #777; border-radius: 3px; font-size: 13px; }
-        .form-row input[type=date] { flex: 1; min-width: 130px; padding: 7px 10px; border: 1px solid #777; border-radius: 3px; font-size: 13px; }
+        .form-row select, .form-row input[type=date] { width: 100%; min-width: 0; height: 36px; padding: 7px 10px; border: 1px solid #777; border-radius: 3px; font-size: 13px; }
+        @media (max-width: 820px) {
+            .form-row { grid-template-columns: auto minmax(0, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .window-box { padding: 28px 16px; }
+        }
         .btn-center { text-align: center; }
         #btnSubmit { padding: 8px 36px; background: #90caf9; color: #000; font-size: 14px; font-weight: bold; border: 1px solid #1976d2; border-radius: 4px; cursor: pointer; }
         #btnSubmit:hover { background: #64b5f6; }
